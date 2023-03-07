@@ -37,14 +37,14 @@ graph LR
   
   %% Edge
   B -->|5. ClientHello| E[OpenSSL];
-  E -->|6. ClientHello| F[Server3];
+  E -->|6. ClientHello| F[Server2];
   F -->|7. ServerHello| E;
   E -->|8. ServerHello| B;
   B -->|9. ServerHello| A;
   
   %% Re-encrypt
   B -->|5. ClientHello| G[OpenSSL];
-  G -->|6. ClientHello| H[Server4];
+  G -->|6. ClientHello| H[Server3];
   H -->|7. ServerHello| G;
   G -->|8. ServerHello| B;
   B -->|9. ServerHello| I[OpenSSL];
