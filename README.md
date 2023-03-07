@@ -56,6 +56,14 @@ graph LR
   B -->|13. ServerHello| A;
 ```
 
+In this flowchart, a client sends an HTTPS request to the HAProxy load balancer. The request is then forwarded to the server backend using one of the following modes:
+
+- Passthrough: The HTTPS request is simply passed through HAProxy to the backend server without any modification.
+- Edge: The HTTPS request is decrypted by OpenSSL and then forwarded to the backend server. The server response is then encrypted by OpenSSL before being sent back to the client.
+- Re-encrypt: The HTTPS request is decrypted by OpenSSL, forwarded to the backend server, and then re-encrypted by OpenSSL before being sent back to the client.
+
+The flowchart shows the steps involved in each of these modes, including the exchange of ClientHello and ServerHello messages for establishing a secure connection.
+
 # How does haproxy route traffic via nftables to a container?
 ```mermaid
 graph LR
