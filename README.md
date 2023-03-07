@@ -1,5 +1,6 @@
 # haproxy-state-machine
 
+HTTP:
 ```mermaid
 graph LR;
   A[Client] -->|1. SYN| B(HAProxy);
@@ -22,6 +23,38 @@ Explanation of the steps:
 - The HAProxy load balancer forwards the HTTP request to Server1.
 - Server1 responds with an HTTP response to the HAProxy load balancer.
 - The HAProxy load balancer forwards the HTTP response to the client.
+
+HTTPS:
+```mermaid
+graph LR
+  A[Client] -->|1. ClientHello| B(HAProxy);
+  B -->|2. ClientHello| C[Server1];
+  C -->|3. ServerHello| B;
+  B -->|4. ServerHello| A;
+  
+  %% Passthrough
+  B -->|5. ClientHello| D[Server2];
+  D -->|6. ServerHello| B;
+  B -->|7. ServerHello| A;
+  
+  %% Edge
+  B -->|5. ClientHello| E[OpenSSL];
+  E -->|6. ClientHello| F[Server3];
+  F -->|7. ServerHello| E;
+  E -->|8. ServerHello| B;
+  B -->|9. ServerHello| A;
+  
+  %% Re-encrypt
+  B -->|5. ClientHello| G[OpenSSL];
+  G -->|6. ClientHello| H[Server4];
+  H -->|7. ServerHello| G;
+  G -->|8. ServerHello| B;
+  B -->|9. ServerHello| I[OpenSSL];
+  I -->|10. ClientHello| H;
+  H -->|11. ServerHello| I;
+  I -->|12. ServerHello| B;
+  B -->|13. ServerHello| A;
+```
 
 # How does haproxy route traffic via nftables to a container?
 ```mermaid
