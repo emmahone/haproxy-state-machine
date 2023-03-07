@@ -33,9 +33,7 @@ graph LR
   B -->|4. ServerHello| A;
   
   %% Passthrough
-  B -->|5. ClientHello| D[Server2];
-  D -->|6. ServerHello| B;
-  B -->|7. ServerHello| A;
+  B -->|5. ServerHello| A;
   
   %% Edge
   B -->|5. ClientHello| E[OpenSSL];
