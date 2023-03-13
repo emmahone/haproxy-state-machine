@@ -169,6 +169,12 @@ graph LR
     shardedIC --> D[routeD]
     shardedIC --> E[routeE]
     shardedIC --> F[routeF]
+    D --> G[pod1]
+    D --> H[pod2]
+    D --> I[pod3]
+    E --> J[pod4]
+    F --> K[pod5]
+    F --> L[pod5]
   end
   
   subgraph default ingress controller
@@ -176,6 +182,12 @@ graph LR
     defaultIC --> A[routeA]
     defaultIC --> B[routeB]
     defaultIC --> C[routeC]
+    A --> M[pod6]
+    A --> N[pod7]
+    B --> O[pod8]
+    C --> P[pod9]
+    C --> Q[pod10]
+    C --> R[pod11]
   end
   
   unlabeledRoutes-- HTTP/HTTPS <--> client[client]
