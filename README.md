@@ -95,3 +95,109 @@ table filter {
 }
 ```
 In this example, the rule is defined in the "input" chain of the "filter" table. The rule specifies that any incoming traffic with a source IP address of `192.168.1.100`.
+
+# connection lifecycle on unencryped route:
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Haproxy
+    participant Backend
+
+    Client->>+Haproxy: SYN
+    Haproxy->>-Client: SYN-ACK
+    Client->>+Haproxy: ACK
+
+
+    Haproxy->>+Backend: SYN
+    Backend->>-Haproxy: SYN-ACK
+    Haproxy->>-Backend: ACK
+    Client->>+Haproxy: GET / HTTP/1.1
+    Haproxy->>-Backend: GET / HTTP/1.1
+    Backend->>+Haproxy: HTTP/1.1 200 OK
+    Haproxy->>-Client: HTTP/1.1 200 OK
+
+    Client->>+Haproxy: FIN
+    Haproxy->>-Client: FIN-ACK
+    Haproxy->>+Backend: FIN
+    Backend->>-Haproxy: FIN-ACK
+    Backend->>+Haproxy: ACK
+    Haproxy->>-Backend: ACK
+```
+
+# edge encrypted:
+```mermaid
+sequenceDiagram
+  participant Client
+  participant HAProxy
+  participant Backend
+
+  Client->>+HAProxy: Send GET request
+  Note over HAProxy: Terminate TLS\nand decrypt request
+  HAProxy->>+Backend: Forward decrypted request
+  Backend-->>-HAProxy: Send response
+  Note over HAProxy: Encrypt response\nand create TLS tunnel
+  HAProxy-->>-Client: Forward encrypted response
+  ```
+
+# re-encrypted
+```mermaid
+sequenceDiagram
+  participant Client
+  participant HAProxy
+  participant Backend
+
+  Client->>+HAProxy: Send encrypted GET request
+  Note over HAProxy: Decrypt request\nand re-encrypt using own certificate
+  HAProxy->>+Backend: Forward re-encrypted request
+  Note over Backend: Terminate TLS\nand decrypt request
+  Backend->>+HAProxy: Forward decrypted request
+  Note over HAProxy: Encrypt response\nand create TLS tunnel to Client
+  HAProxy-->>-Backend: Forward encrypted response
+  Note over Backend: Encrypt response\nand create TLS tunnel to HAProxy
+  Backend-->>-HAProxy: Forward encrypted response
+  Note over HAProxy: Forward re-encrypted response\nto Client
+  HAProxy-->>-Client: Forward re-encrypted response
+
+```
+# passthrough
+```mermaid
+sequenceDiagram
+  participant Client
+  participant HAProxy
+  participant Backend
+
+  Client->>+HAProxy: Send encrypted GET request
+  HAProxy->>+Backend: Forward encrypted request
+  Note over Backend: Terminate TLS\nand decrypt request
+  Backend-->>-HAProxy: Send response
+  Note over HAProxy: Forward encrypted response\nto Client
+  HAProxy-->>-Client: Forward encrypted response
+```
+
+
+================
+
+```mermaid
+graph LR
+  subgraph sharded ingress controller
+    shardedRoutes{{routes labeled 'sharded=true', shard-apps.mycluster.mydomain}} --> shardedIC[sharded ingress controller]
+    shardedIC --> D[routeD]
+    shardedIC --> E[routeE]
+    shardedIC --> F[routeF]
+  end
+  
+  subgraph default ingress controller
+    unlabeledRoutes{{routes not labeled 'sharded=true', apps.mycluster.mydomain}} --> defaultIC[default ingress controller]
+    defaultIC --> A[routeA]
+    defaultIC --> B[routeB]
+    defaultIC --> C[routeC]
+  end
+  
+  A-- HTTP/HTTPS --> internet[Internet]
+  B-- HTTP/HTTPS --> internet
+  C-- HTTP/HTTPS --> internet
+  D-- HTTP/HTTPS --> internet
+  E-- HTTP/HTTPS --> internet
+  F-- HTTP/HTTPS --> internet
+
+```
