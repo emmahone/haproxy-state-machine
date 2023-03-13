@@ -2,17 +2,31 @@
 
 HTTP:
 ```mermaid
-graph LR;
-  A[Client] -->|1. SYN| B(HAProxy);
-  B -->|2. SYN| C[Server1];
-  C -->|3. SYN-ACK| B;
-  B -->|4. ACK| A;
-  A -->|5. HTTP Request| B;
-  B -->|6. HTTP Request| C;
-  C -->|7. HTTP Response| B;
-  B -->|8. HTTP Response| A;
-```
+sequenceDiagram
+    participant Client
+    participant Haproxy
+    participant Backend
 
+    Client->>+Haproxy: SYN
+    Haproxy->>-Client: SYN-ACK
+    Client->>+Haproxy: ACK
+
+
+    Haproxy->>+Backend: SYN
+    Backend->>-Haproxy: SYN-ACK
+    Haproxy->>-Backend: ACK
+    Client->>+Haproxy: GET / HTTP/1.1
+    Haproxy->>-Backend: GET / HTTP/1.1
+    Backend->>+Haproxy: HTTP/1.1 200 OK
+    Haproxy->>-Client: HTTP/1.1 200 OK
+
+    Client->>+Haproxy: FIN
+    Haproxy->>-Client: FIN-ACK
+    Haproxy->>+Backend: FIN
+    Backend->>-Haproxy: FIN-ACK
+    Backend->>+Haproxy: ACK
+    Haproxy->>-Backend: ACK
+```
 Explanation of the steps:
 
 - The client sends a SYN packet to the HAProxy load balancer.
@@ -54,13 +68,58 @@ graph LR
   B -->|13. ServerHello| A;
 ```
 
-In this flowchart, a client sends an HTTPS request to the HAProxy load balancer. The request is then forwarded to the server backend using one of the following modes:
+In this flowchart, a client sends an HTTPS request to the HAProxy load balancer. The request is then forwarded to the server backend using one of the following modes: Passthrough, Edge, and Re-encrypt
 
-- Passthrough: The HTTPS request is simply passed through HAProxy to the backend server without any modification.
-- Edge: The HTTPS request is decrypted by OpenSSL and then forwarded to the backend server. The server response is then encrypted by OpenSSL before being sent back to the client.
-- Re-encrypt: The HTTPS request is decrypted by OpenSSL, forwarded to the backend server, and then re-encrypted by OpenSSL before being sent back to the client.
+# Passthrough
+The HTTPS request is simply passed through HAProxy to the backend server without any modification.
+```mermaid
+sequenceDiagram
+  participant Client
+  participant HAProxy
+  participant Backend
 
-The flowchart shows the steps involved in each of these modes, including the exchange of ClientHello and ServerHello messages for establishing a secure connection.
+  Client->>+HAProxy: Send encrypted GET request
+  HAProxy->>+Backend: Forward encrypted request
+  Note over Backend: Terminate TLS\nand decrypt request
+  Backend-->>-HAProxy: Send response
+  Note over HAProxy: Forward encrypted response\nto Client
+  HAProxy-->>-Client: Forward encrypted response
+```
+# Edge
+The HTTPS request is decrypted by OpenSSL and then forwarded to the backend server. The server response is then encrypted by OpenSSL before being sent back to the client.
+```mermaid
+sequenceDiagram
+  participant Client
+  participant HAProxy
+  participant Backend
+
+  Client->>+HAProxy: Send GET request
+  Note over HAProxy: Terminate TLS\nand decrypt request
+  HAProxy->>+Backend: Forward decrypted request
+  Backend-->>-HAProxy: Send response
+  Note over HAProxy: Encrypt response\nand create TLS tunnel
+  HAProxy-->>-Client: Forward encrypted response
+  ```
+# Re-encrypt
+The HTTPS request is decrypted by OpenSSL, forwarded to the backend server, and then re-encrypted by OpenSSL before being sent back to the client.
+```mermaid
+sequenceDiagram
+  participant Client
+  participant HAProxy
+  participant Backend
+
+  Client->>+HAProxy: Send encrypted GET request
+  Note over HAProxy: Decrypt request\nand re-encrypt using own certificate
+  HAProxy->>+Backend: Forward re-encrypted request
+  Note over Backend: Terminate TLS\nand decrypt request
+  Backend->>+HAProxy: Forward decrypted request
+  Note over HAProxy: Encrypt response\nand create TLS tunnel to Client
+  HAProxy-->>-Backend: Forward encrypted response
+  Note over Backend: Encrypt response\nand create TLS tunnel to HAProxy
+  Backend-->>-HAProxy: Forward encrypted response
+  Note over HAProxy: Forward re-encrypted response\nto Client
+  HAProxy-->>-Client: Forward re-encrypted response
+```
 
 # How does haproxy route traffic via nftables to a container?
 ```mermaid
@@ -96,87 +155,7 @@ table filter {
 ```
 In this example, the rule is defined in the "input" chain of the "filter" table. The rule specifies that any incoming traffic with a source IP address of `192.168.1.100`.
 
-# connection lifecycle on unencryped route:
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Haproxy
-    participant Backend
-
-    Client->>+Haproxy: SYN
-    Haproxy->>-Client: SYN-ACK
-    Client->>+Haproxy: ACK
-
-
-    Haproxy->>+Backend: SYN
-    Backend->>-Haproxy: SYN-ACK
-    Haproxy->>-Backend: ACK
-    Client->>+Haproxy: GET / HTTP/1.1
-    Haproxy->>-Backend: GET / HTTP/1.1
-    Backend->>+Haproxy: HTTP/1.1 200 OK
-    Haproxy->>-Client: HTTP/1.1 200 OK
-
-    Client->>+Haproxy: FIN
-    Haproxy->>-Client: FIN-ACK
-    Haproxy->>+Backend: FIN
-    Backend->>-Haproxy: FIN-ACK
-    Backend->>+Haproxy: ACK
-    Haproxy->>-Backend: ACK
-```
-
-# edge encrypted:
-```mermaid
-sequenceDiagram
-  participant Client
-  participant HAProxy
-  participant Backend
-
-  Client->>+HAProxy: Send GET request
-  Note over HAProxy: Terminate TLS\nand decrypt request
-  HAProxy->>+Backend: Forward decrypted request
-  Backend-->>-HAProxy: Send response
-  Note over HAProxy: Encrypt response\nand create TLS tunnel
-  HAProxy-->>-Client: Forward encrypted response
-  ```
-
-# re-encrypted
-```mermaid
-sequenceDiagram
-  participant Client
-  participant HAProxy
-  participant Backend
-
-  Client->>+HAProxy: Send encrypted GET request
-  Note over HAProxy: Decrypt request\nand re-encrypt using own certificate
-  HAProxy->>+Backend: Forward re-encrypted request
-  Note over Backend: Terminate TLS\nand decrypt request
-  Backend->>+HAProxy: Forward decrypted request
-  Note over HAProxy: Encrypt response\nand create TLS tunnel to Client
-  HAProxy-->>-Backend: Forward encrypted response
-  Note over Backend: Encrypt response\nand create TLS tunnel to HAProxy
-  Backend-->>-HAProxy: Forward encrypted response
-  Note over HAProxy: Forward re-encrypted response\nto Client
-  HAProxy-->>-Client: Forward re-encrypted response
-
-```
-# passthrough
-```mermaid
-sequenceDiagram
-  participant Client
-  participant HAProxy
-  participant Backend
-
-  Client->>+HAProxy: Send encrypted GET request
-  HAProxy->>+Backend: Forward encrypted request
-  Note over Backend: Terminate TLS\nand decrypt request
-  Backend-->>-HAProxy: Send response
-  Note over HAProxy: Forward encrypted response\nto Client
-  HAProxy-->>-Client: Forward encrypted response
-```
-
-
-================
-
+# Sharding
 ```mermaid
 graph LR
   subgraph sharded ingress controller
@@ -199,5 +178,4 @@ graph LR
   D-- HTTP/HTTPS --> internet
   E-- HTTP/HTTPS --> internet
   F-- HTTP/HTTPS --> internet
-
 ```
