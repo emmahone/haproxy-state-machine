@@ -190,12 +190,12 @@ graph LR
     C --> R[pod11]
   end
   
-  unlabeledRoutes-- HTTP/HTTPS <--> client[client]
-  unlabeledRoutes-- HTTP/HTTPS <--> client
-  unlabeledRoutes-- HTTP/HTTPS <--> client
-  shardedRoutes-- HTTP/HTTPS <--> client[client]
-  shardedRoutes-- HTTP/HTTPS <--> client
-  shardedRoutes-- HTTP/HTTPS <--> client
+  client[client http/https request] --> unlabeledRoutes
+  client[client http/https request] --> unlabeledRoutes
+  client[client http/https request] --> unlabeledRoutes
+  client[client http/https request] --> shardedRoutes
+  client[client http/https request] --> shardedRoutes
+  client[client http/https request] --> shardedRoutes
 ```
 HAProxy router sharding is a technique used to horizontally scale the routing capabilities of HAProxy.
 
