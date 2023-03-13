@@ -30,7 +30,7 @@ sequenceDiagram
 Explanation of the steps:
 
 - The client sends a SYN packet to the HAProxy load balancer.
-- The HAProxy load balancer forwards the SYN packet to Server1.
+- The HAProxy load balancer forwards the SYN packet to the backend.
 - The backend responds with a SYN-ACK packet to the HAProxy load balancer.
 - The HAProxy load balancer responds with an ACK packet to the client, indicating that the connection has been established.
 - The client sends an HTTP request to the HAProxy load balancer.
