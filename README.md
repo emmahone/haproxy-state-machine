@@ -132,7 +132,7 @@ sequenceDiagram
 graph LR
   A[Client] --> B[HAProxy]
   B -- Routes traffic to --> C[nftables]
-  C -- Routes traffic to --> D[Container in Openshift]
+  C -- Routes traffic to --> D[Container/pod in Openshift]
 ```
 
 In this flowchart, traffic from a client first goes to the HAProxy load balancer. HAProxy then routes the traffic through nftables, a firewall system used on Linux systems, to reach the container running in Openshift. This ensures that the traffic is properly routed and secured before it reaches the container.
