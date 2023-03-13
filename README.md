@@ -178,12 +178,12 @@ graph LR
     defaultIC --> C[routeC]
   end
   
-  A-- HTTP/HTTPS --> internet[Internet]
-  B-- HTTP/HTTPS --> internet
-  C-- HTTP/HTTPS --> internet
-  D-- HTTP/HTTPS --> internet
-  E-- HTTP/HTTPS --> internet
-  F-- HTTP/HTTPS --> internet
+  unlabeledRoutes-- HTTP/HTTPS <--> client[client]
+  unlabeledRoutes-- HTTP/HTTPS <--> client
+  unlabeledRoutes-- HTTP/HTTPS <--> client
+  shardedRoutes-- HTTP/HTTPS <--> client[client]
+  shardedRoutes-- HTTP/HTTPS <--> client
+  shardedRoutes-- HTTP/HTTPS <--> client
 ```
 HAProxy router sharding is a technique used to horizontally scale the routing capabilities of HAProxy.
 
