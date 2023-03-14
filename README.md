@@ -48,7 +48,7 @@ Explanation of the steps:
 ```mermaid
 graph LR
   A[Client] --> B(HAProxy);
-  B --> C[Server1 - passthrough];
+  B --> C[Pod1 - passthrough];
   C --> B;
   B --> A;
   
@@ -57,14 +57,14 @@ graph LR
   
   %% Edge
   B --> E[OpenSSL];
-  E --> F[Server2 - edge];
+  E --> F[Pod2 - edge];
   F --> E;
   E --> B;
   B --> A;
   
   %% Re-encrypt
   B --> G[OpenSSL];
-  G --> H[Server3 - re-encrypt];
+  G --> H[Pod3 - re-encrypt];
   H --> G;
   G --> B;
   B --> I[OpenSSL];
