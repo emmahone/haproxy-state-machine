@@ -100,10 +100,10 @@ sequenceDiagram
   participant Backend
 
   Client->>+HAProxy: Send GET request
-  Note over HAProxy: Terminate TLS\nand decrypt request
+  Note over HAProxy: Terminate TLS and decrypt request
   HAProxy->>+Backend: Forward decrypted request
   Backend-->>-HAProxy: Send response
-  Note over HAProxy: Encrypt response\nand create TLS tunnel
+  Note over HAProxy: Encrypt response and create TLS tunnel
   HAProxy-->>-Client: Forward encrypted response
   ```
 # Re-encrypt
@@ -115,15 +115,15 @@ sequenceDiagram
   participant Backend
 
   Client->>+HAProxy: Send encrypted GET request
-  Note over HAProxy: Decrypt request\nand re-encrypt using own certificate
+  Note over HAProxy: Decrypt request and re-encrypt using own certificate
   HAProxy->>+Backend: Forward re-encrypted request
-  Note over Backend: Terminate TLS\nand decrypt request
+  Note over Backend: Terminate TLS and decrypt request
   Backend->>+HAProxy: Forward decrypted request
-  Note over HAProxy: Encrypt response\nand create TLS tunnel to Client
+  Note over HAProxy: Encrypt response and create TLS tunnel to Client
   HAProxy-->>-Backend: Forward encrypted response
-  Note over Backend: Encrypt response\nand create TLS tunnel to HAProxy
+  Note over Backend: Encrypt response and create TLS tunnel to HAProxy
   Backend-->>-HAProxy: Forward encrypted response
-  Note over HAProxy: Forward re-encrypted response\nto Client
+  Note over HAProxy: Forward re-encrypted response to Client
   HAProxy-->>-Client: Forward re-encrypted response
 ```
 
