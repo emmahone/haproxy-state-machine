@@ -174,7 +174,7 @@ graph LR
     D --> I[pod3]
     E --> J[pod4]
     F --> K[pod5]
-    F --> L[pod5]
+    F --> L[pod12]
   end
   
   subgraph default ingress controller
