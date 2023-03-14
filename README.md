@@ -86,9 +86,9 @@ sequenceDiagram
 
   Client->>+HAProxy: Send encrypted GET request
   HAProxy->>+Backend: Forward encrypted request
-  Note over Backend: Terminate TLS\nand decrypt request
+  Note over Backend: Terminate TLS and decrypt request
   Backend-->>-HAProxy: Send response
-  Note over HAProxy: Forward encrypted response\nto Client
+  Note over HAProxy: Forward encrypted response to Client
   HAProxy-->>-Client: Forward encrypted response
 ```
 # Edge
