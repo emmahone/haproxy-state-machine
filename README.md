@@ -54,7 +54,8 @@ graph LR
   
   %% Passthrough
   B --> A;
-  C --> J[OpenSSL]
+  C --> J[OpenSSL];
+  j --> C;
   
   %% Edge
   B --> E[OpenSSL];
