@@ -65,10 +65,8 @@ graph LR
   B --> A;
   
   %% Re-encrypt
-  B --> G[OpenSSL];
   G --> H[Pod3 - re-encrypt];
-  H --> G;
-  G --> B;
+  H --> G[OpenSSL];
   B --> I[OpenSSL];
   I --> H;
   H --> I;
