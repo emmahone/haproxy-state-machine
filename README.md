@@ -145,10 +145,10 @@ nftables works by creating a set of rules that define how traffic should be filt
 
 To read an nftables rule, you need to understand its syntax. An nftables rule is made up of several parts:
 
-- `The table`: This is the top-level container for rules, and it defines the type of traffic that the rule applies to. There are several types of tables, including filter, nat, and mangle.
-- `The chain`: This is a list of rules that are executed in order, and it defines the action to be taken for each packet that matches the conditions of the rule.
-- `The rule`: This is the specific condition or set of conditions that must be met for the packet to be processed by the chain.
-- `The action`: This is the action that should be taken for the packet if it matches the conditions of the rule.
+- `table`: This is the top-level container for rules, and it defines the type of traffic that the rule applies to. There are several types of tables, including filter, nat, and mangle.
+- `chain`: This is a list of rules that are executed in order, and it defines the action to be taken for each packet that matches the conditions of the rule.
+- `rule`: This is the specific condition or set of conditions that must be met for the packet to be processed by the chain.
+- `action`: This is the action that should be taken for the packet if it matches the conditions of the rule.
 
 Here is an example of an nftables rule that drops all incoming traffic from a specific IP address:
 ```
