@@ -1,10 +1,8 @@
 # HAProxy
 
-HAProxy (High Availability Proxy) is a free and open-source load balancing and proxy server software. It is used to distribute network traffic across multiple servers, improving the reliability, scalability, and availability of web applications and services.
+HAProxy, an open-source load balancer and reverse proxy software, empowers organizations with high availability and proxying capabilities for TCP and HTTP-based applications. With its widespread adoption in production environments, HAProxy effectively distributes incoming traffic across multiple servers, ensuring application reliability and scalability. Noteworthy features include advanced load balancing algorithms, SSL/TLS termination, content-based routing, and a wide range of configuration options.
 
 HAProxy can be deployed on Linux, Unix, and Windows systems and can handle various protocols including HTTP, HTTPS, TCP, and SSL/TLS. It uses a single-process, event-driven model that enables it to handle thousands of concurrent connections efficiently.
-
-In addition to load balancing, HAProxy also provides features such as SSL termination, content switching, health checking, and access control. It is highly configurable and can be customized to suit the specific needs of an application or service.
 
 # HTTP Traffic
 ```mermaid
@@ -201,8 +199,8 @@ graph LR
 ```
 HAProxy router sharding is a technique used to horizontally scale the routing capabilities of HAProxy.
 
-In a typical setup, a single HAProxy instance is responsible for routing traffic to backend servers. As the traffic grows, this can become a bottleneck and limit the overall throughput of the system.
+In a vanilla setup, a single HAProxy instance is responsible for routing traffic to backend servers. As the traffic grows, this can become a bottleneck and limit the overall throughput of the system.
 
 To overcome this limitation, HAProxy router sharding involves running multiple HAProxy instances in parallel and distributing the traffic between them. Each instance is responsible for routing traffic to a subset of backend servers, and together they provide a higher level of scalability and fault tolerance.
 
-The sharding is usually done based on some sort of consistent hashing algorithm, which ensures that requests from a particular client are always routed to the same HAProxy instance. This provides session affinity, which is important for stateful applications that require requests from the same client to be handled by the same backend server.
+The sharding is usually done based on some sort of consistent hashing algorithm, which ensures that requests from a particular client are always routed to the same HAProxy instance. This provides session affinity, which is important for stateful applications that require requests from the same client to be handled by the same backend server. You can learn more about router sharding in Openshift [here](https://docs.openshift.com/container-platform/4.13/networking/ingress-sharding.html).
