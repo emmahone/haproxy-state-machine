@@ -135,7 +135,7 @@ graph LR
 
 In this flowchart, traffic from a client first goes to the HAProxy load balancer. HAProxy then routes the traffic through nftables, a firewall system used on Linux systems, to reach the container running in Openshift. This ensures that the traffic is properly routed and secured before it reaches the container.
 
-**NOTE**: The above flow is no longer accurate in newer Openshift versions. ovn-kubernetes has its own architecture for getting traffic from the router to containers/pods.
+**NOTE**: The above flow is no longer accurate in newer Openshift versions. `ovn-kubernetes` has its own architecture for getting traffic from the router to containers/pods.
 
 # What is nftables?
 
